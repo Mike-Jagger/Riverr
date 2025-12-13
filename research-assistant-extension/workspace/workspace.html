@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Research Workspace</title>
+		<link rel="stylesheet" href="workspace.css" />
+	</head>
+	<body>
+		<!-- Top Navigation -->
+		<nav class="top-nav">
+			<div class="nav-left">
+				<div class="logo">
+					<svg
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<rect
+							x="3"
+							y="3"
+							width="18"
+							height="18"
+							rx="2"
+							ry="2"
+						></rect>
+						<line x1="9" y1="3" x2="9" y2="21"></line>
+					</svg>
+					<span>Research Assistant</span>
+				</div>
+			</div>
+
+			<div class="nav-center">
+				<div class="view-tabs">
+					<button class="view-tab active" data-view="dashboard">
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<rect x="3" y="3" width="7" height="7"></rect>
+							<rect x="14" y="3" width="7" height="7"></rect>
+							<rect x="14" y="14" width="7" height="7"></rect>
+							<rect x="3" y="14" width="7" height="7"></rect>
+						</svg>
+						Dashboard
+					</button>
+					<button class="view-tab" data-view="graph">
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<circle cx="18" cy="18" r="3"></circle>
+							<circle cx="6" cy="6" r="3"></circle>
+							<circle cx="18" cy="6" r="3"></circle>
+							<line x1="6" y1="9" x2="18" y2="15"></line>
+							<line x1="9" y1="6" x2="15" y2="6"></line>
+						</svg>
+						Graph
+					</button>
+					<button class="view-tab" data-view="canvas">
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<rect
+								x="3"
+								y="3"
+								width="18"
+								height="18"
+								rx="2"
+								ry="2"
+							></rect>
+							<line x1="9" y1="9" x2="15" y2="9"></line>
+							<line x1="9" y1="15" x2="15" y2="15"></line>
+						</svg>
+						Canvas
+					</button>
+					<button class="view-tab" data-view="notes">
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path
+								d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+							></path>
+							<polyline points="14 2 14 8 20 8"></polyline>
+						</svg>
+						Notes
+					</button>
+					<button class="view-tab" data-view="replay">
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<circle cx="12" cy="12" r="10"></circle>
+							<polygon points="10 8 16 12 10 16 10 8"></polygon>
+						</svg>
+						Replay
+					</button>
+				</div>
+			</div>
+
+			<div class="nav-right">
+				<div class="search-box">
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<circle cx="11" cy="11" r="8"></circle>
+						<path d="m21 21-4.35-4.35"></path>
+					</svg>
+					<input
+						type="text"
+						id="global-search"
+						placeholder="Search everywhere..."
+					/>
+				</div>
+				<button class="icon-btn" id="settings-btn">
+					<svg
+						width="18"
+						height="18"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<circle cx="12" cy="12" r="3"></circle>
+						<path
+							d="M12 1v6m0 6v6m5.2-13c.8 1.8.8 4.2 0 6m-10.4 0c-.8-1.8-.8-4.2 0-6m13.5 7c1.8-.8 4.2-.8 6 0m-6 10.4c-1.8.8-4.2.8-6 0m-7-13.5c-.8 1.8-.8 4.2 0 6m10.4 0c.8-1.8.8-4.2 0-6"
+						></path>
+					</svg>
+				</button>
+			</div>
+		</nav>
+
+		<!-- Main Content Area -->
+		<main class="main-content">
+			<!-- Dashboard View -->
+			<div id="dashboard-view" class="view-container active">
+				<div class="dashboard-grid">
+					<!-- Task Overview -->
+					<div class="dashboard-card">
+						<div class="card-header">
+							<h3>Active Tasks</h3>
+							<button
+								class="card-action"
+								id="new-task-from-dashboard"
+							>
+								+ New
+							</button>
+						</div>
+						<div class="card-content" id="dashboard-tasks"></div>
+					</div>
+
+					<!-- Recent Activity -->
+					<div class="dashboard-card">
+						<div class="card-header">
+							<h3>Recent Activity</h3>
+						</div>
+						<div class="card-content" id="recent-activity"></div>
+					</div>
+
+					<!-- Quick Stats -->
+					<div class="dashboard-card stats-card">
+						<div class="stat-grid">
+							<div class="stat-item">
+								<div
+									class="stat-icon"
+									style="background: #3b82f6"
+								>
+									<svg
+										width="20"
+										height="20"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="white"
+										stroke-width="2"
+									>
+										<path
+											d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+										></path>
+									</svg>
+								</div>
+								<div class="stat-info">
+									<div class="stat-value" id="stat-tasks">
+										0
+									</div>
+									<div class="stat-label">Tasks</div>
+								</div>
+							</div>
+							<div class="stat-item">
+								<div
+									class="stat-icon"
+									style="background: #10b981"
+								>
+									<svg
+										width="20"
+										height="20"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="white"
+										stroke-width="2"
+									>
+										<rect
+											x="3"
+											y="3"
+											width="18"
+											height="18"
+											rx="2"
+											ry="2"
+										></rect>
+									</svg>
+								</div>
+								<div class="stat-info">
+									<div class="stat-value" id="stat-tabs">
+										0
+									</div>
+									<div class="stat-label">Tabs</div>
+								</div>
+							</div>
+							<div class="stat-item">
+								<div
+									class="stat-icon"
+									style="background: #f59e0b"
+								>
+									<svg
+										width="20"
+										height="20"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="white"
+										stroke-width="2"
+									>
+										<path
+											d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+										></path>
+										<polyline
+											points="14 2 14 8 20 8"
+										></polyline>
+									</svg>
+								</div>
+								<div class="stat-info">
+									<div class="stat-value" id="stat-notes">
+										0
+									</div>
+									<div class="stat-label">Notes</div>
+								</div>
+							</div>
+							<div class="stat-item">
+								<div
+									class="stat-icon"
+									style="background: #8b5cf6"
+								>
+									<svg
+										width="20"
+										height="20"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="white"
+										stroke-width="2"
+									>
+										<circle cx="12" cy="12" r="10"></circle>
+										<polyline
+											points="12 6 12 12 16 14"
+										></polyline>
+									</svg>
+								</div>
+								<div class="stat-info">
+									<div class="stat-value" id="stat-time">
+										0h
+									</div>
+									<div class="stat-label">Time Spent</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Productivity Chart -->
+					<div class="dashboard-card chart-card">
+						<div class="card-header">
+							<h3>This Week's Activity</h3>
+						</div>
+						<div class="card-content">
+							<canvas id="activity-chart"></canvas>
+						</div>
+					</div>
+
+					<!-- Quick Notes -->
+					<div class="dashboard-card">
+						<div class="card-header">
+							<h3>Quick Notes</h3>
+						</div>
+						<div class="card-content" id="quick-notes"></div>
+					</div>
+
+					<!-- Inbox (from phone/other devices) -->
+					<div class="dashboard-card">
+						<div class="card-header">
+							<h3>Inbox</h3>
+							<span class="badge" id="inbox-count">0</span>
+						</div>
+						<div class="card-content" id="inbox-items"></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Graph View -->
+			<div id="graph-view" class="view-container">
+				<div class="graph-container">
+					<div class="graph-canvas" id="graph-canvas">
+						<p class="coming-soon">
+							Graph View - Visualize connections between tasks,
+							notes, and sources
+						</p>
+					</div>
+					<div class="graph-sidebar">
+						<h3>Filters</h3>
+						<div class="filter-group">
+							<label
+								><input type="checkbox" checked /> Tasks</label
+							>
+							<label
+								><input type="checkbox" checked />
+								Subtasks</label
+							>
+							<label
+								><input type="checkbox" checked /> Notes</label
+							>
+							<label
+								><input type="checkbox" checked /> Tabs</label
+							>
+							<label><input type="checkbox" /> Files</label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Canvas View -->
+			<div id="canvas-view" class="view-container">
+				<div class="canvas-workspace">
+					<p class="coming-soon">
+						Canvas View - Free-form workspace for organizing sources
+						and notes
+					</p>
+				</div>
+			</div>
+
+			<!-- Notes View -->
+			<div id="notes-view" class="view-container">
+				<div class="notes-container">
+					<div class="notes-sidebar">
+						<div class="notes-filter">
+							<button class="filter-btn active" data-filter="all">
+								All Notes
+							</button>
+							<button class="filter-btn" data-filter="clips">
+								Clips
+							</button>
+							<button
+								class="filter-btn"
+								data-filter="annotations"
+							>
+								Annotations
+							</button>
+							<button class="filter-btn" data-filter="todos">
+								To-Do
+							</button>
+						</div>
+						<div class="notes-list" id="notes-list"></div>
+					</div>
+					<div class="note-editor" id="note-editor">
+						<p class="placeholder">Select a note to view or edit</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Session Replay View -->
+			<div id="replay-view" class="view-container">
+				<div class="replay-container">
+					<div class="replay-timeline">
+						<div class="timeline-controls">
+							<button class="play-btn" id="play-replay">
+								<svg
+									width="20"
+									height="20"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<polygon
+										points="5 3 19 12 5 21 5 3"
+									></polygon>
+								</svg>
+							</button>
+							<div class="timeline-bar">
+								<div
+									class="timeline-progress"
+									style="width: 30%"
+								></div>
+							</div>
+							<span class="timeline-time">0:00 / 2:45:30</span>
+						</div>
+						<div class="timeline-events" id="timeline-events"></div>
+					</div>
+					<div class="replay-content">
+						<p class="coming-soon">
+							Session Replay - Review your research journey
+						</p>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<script src="workspace.js"></script>
+	</body>
+</html>
