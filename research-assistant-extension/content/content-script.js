@@ -375,11 +375,11 @@
 				item.className = "ra-note-item";
 
 				item.innerHTML = `
-				<div class="ra-note-header">
+				<div class="ra-note-tags-label">
 					<strong>${note.title || "Untitled Note"}</strong>
 					<span class="ra-note-date">${new Date(note.createdAt).toLocaleString()}</span>
 				</div>
-				<div class="ra-note-body">${note.content || note.excerpt || ""}</div>
+				<div class="ra-note-label">${note.content || note.excerpt || ""}</div>
 			`;
 
 				notesList.appendChild(item);

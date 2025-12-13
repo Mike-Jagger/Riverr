@@ -2,30 +2,75 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
+		<title>Note Popup</title>
 		<style>
-			/* Inline styles for the notes sidebar */
-			#ra-notes-sidebar-container {
-				position: fixed;
-				top: 0;
-				right: -320px;
-				width: 320px;
-				height: 100vh;
-				background: white;
-				box-shadow: -2px 0 12px rgba(0, 0, 0, 0.1);
-				z-index: 999998;
-				transition: right 0.3s ease;
-				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-					Roboto, sans-serif;
+			body {
+				font-family: system-ui, sans-serif;
+				margin: 0;
+				padding: 16px;
+				background: #fff;
+				color: #222;
 			}
-
-			#ra-notes-sidebar-container.open {
-				right: 0;
+			h3 {
+				margin: 0 0 10px;
+				font-size: 16px;
+				font-weight: 600;
+			}
+			textarea,
+			input {
+				width: 100%;
+				box-sizing: border-box;
+				border: 1px solid #ccc;
+				border-radius: 6px;
+				padding: 8px;
+				font-size: 14px;
+				resize: vertical;
+			}
+			textarea {
+				height: 140px;
+			}
+			.actions {
+				display: flex;
+				justify-content: flex-end;
+				margin-top: 12px;
+				gap: 8px;
+			}
+			button {
+				border: none;
+				border-radius: 6px;
+				padding: 8px 14px;
+				font-size: 13px;
+				cursor: pointer;
+			}
+			#saveBtn {
+				background: #2563eb;
+				color: white;
+			}
+			#cancelBtn {
+				background: #e5e7eb;
 			}
 		</style>
 	</head>
 	<body>
-		<div id="ra-notes-sidebar-container">
-			<!-- Content will be injected by content-script.js -->
+		<h3>Add Note</h3>
+		<label>
+			Title
+			<input type="text" id="note-title" placeholder="Optional title" />
+		</label>
+		<br /><br />
+		<label>
+			Content
+			<textarea
+				id="note-content"
+				placeholder="Write your note..."
+			></textarea>
+		</label>
+
+		<div class="actions">
+			<button id="cancelBtn">Cancel</button>
+			<button id="saveBtn">Save</button>
 		</div>
+
+		<script src="notes-popup.js"></script>
 	</body>
 </html>
