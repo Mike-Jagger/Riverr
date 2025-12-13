@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Research Assistant</title>
+		<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+		<link rel="stylesheet" href="taskpane.css" />
+	</head>
+	<body>
+		<div class="container">
+			<header class="header">
+				<h1>Research Assistant</h1>
+			</header>
+
+			<div class="search-bar">
+				<input
+					type="text"
+					id="search-input"
+					placeholder="Search notes, annotations..."
+				/>
+				<button id="search-btn">Search</button>
+			</div>
+
+			<div class="tabs">
+				<button class="tab active" data-tab="notes">Notes</button>
+				<button class="tab" data-tab="tasks">Tasks</button>
+				<button class="tab" data-tab="annotations">Annotations</button>
+			</div>
+
+			<div class="content">
+				<div id="notes-view" class="tab-content active">
+					<div id="notes-list"></div>
+				</div>
+
+				<div id="tasks-view" class="tab-content">
+					<div id="tasks-list"></div>
+				</div>
+
+				<div id="annotations-view" class="tab-content">
+					<div id="annotations-list"></div>
+				</div>
+			</div>
+
+			<div class="footer">
+				<button id="settings-btn">Configure Folder</button>
+			</div>
+		</div>
+
+		<script src="data-reader.js"></script>
+		<script src="taskpane.js"></script>
+	</body>
+</html>
