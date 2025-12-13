@@ -258,7 +258,7 @@ let currentData = SAMPLE_DATA;
 // ============================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-	initializeWorkspace();
+	//initializeWorkspace();
 	setupEventListeners();
 	loadData();
 });
@@ -490,26 +490,29 @@ async function openTask(taskId) {
 	if (!task) return;
 
 	try {
-		const group = await chrome.tabGroups.create({
-			title: task.title,
-			color: task.color.replace("#", ""),
-		});
-
 		for (const subtask of task.subtasks) {
+			// Open all tabs of this subtask and collect their IDs
+			const tabIds = [];
 			for (const tab of subtask.tabs) {
 				const createdTab = await chrome.tabs.create({
-					url: "https://" + tab.url,
+					url: `https://${tab.url}`,
 					active: false,
 				});
-				await chrome.tabs.group({
-					groupId: group.id,
-					tabIds: createdTab.id,
+				tabIds.push(createdTab.id);
+			}
+
+			// Group the tabs into a new tab group
+			if (tabIds.length > 0) {
+				const groupId = await chrome.tabs.group({ tabIds });
+				// Optional: set group color and title
+				await chrome.tabGroups.update(groupId, {
+					title: subtask.title,
+					color: task.color.replace("#", ""), // remove # for Chrome API
 				});
 			}
 		}
-		console.log(`Opened task "${task.title}" in Chrome tab group`);
-	} catch (e) {
-		console.error("Could not open Chrome tabs", e);
+	} catch (err) {
+		console.error("Failed to open task tabs:", err);
 	}
 }
 
@@ -595,4 +598,44 @@ async function loadData() {
 		currentData = SAMPLE_DATA;
 	}
 	renderDashboard();
+}
+
+// Formats seconds into human-readable time, e.g., 1247 -> "20m 47s"
+function formatTime(seconds) {
+	const h = Math.floor(seconds / 3600);
+	const m = Math.floor((seconds % 3600) / 60);
+	const s = seconds % 60;
+	let parts = [];
+	if (h > 0) parts.push(`${h}h`);
+	if (m > 0) parts.push(`${m}m`);
+	if (s > 0 && h === 0) parts.push(`${s}s`); // show seconds only if less than 1 hour
+	return parts.join(" ") || "0s";
+}
+
+// Formats a timestamp into a relative string, e.g., "2h ago"
+function formatRelativeTime(timestamp) {
+	const diff = Date.now() - timestamp;
+	const sec = Math.floor(diff / 1000);
+	const min = Math.floor(sec / 60);
+	const hr = Math.floor(min / 60);
+	const day = Math.floor(hr / 24);
+
+	if (day > 0) return `${day}d ago`;
+	if (hr > 0) return `${hr}h ago`;
+	if (min > 0) return `${min}m ago`;
+	return `${sec}s ago`;
+}
+
+// Optional: icon for inbox items
+function getInboxIcon(type) {
+	switch (type) {
+		case "image":
+			return "🖼️";
+		case "audio":
+			return "🎵";
+		case "text":
+			return "📝";
+		default:
+			return "📎";
+	}
 }
