@@ -1,16 +1,15 @@
 /**
- * Note
- * @typedef {Object} Note
+ * @typedef {Object} Task
  *
  * @property {String} id
- * @property {ModelType} type // just easier for parsing and validation though not necessary with type definitions now in place
- *
- * @property {Task} task
- * @property {SubTask} subTask
- *
  * @property {String} title
- * @property {String} content
- * @property {Excerpt} excerpt // This will be used more by annotations
+ * @property {String} color
+ * @property {Task[]} subTasks
+ * @property {Task} parent
+ * @property {number} priority
+ * @property {Object.<String, (Object|String|number)} metaData // For now let's give it raw
+ * @property {number} order
+ * @property {Tab[]} tabs // TODO: [GLOBAL]  Using an array when there are going ot be many insertions and deletions might not be the best way
  *
  * @property {Tag[]} tags
  * @property {Link[]} links // model links (for now) or citations (TODO: future)
@@ -29,36 +28,37 @@
  * @property {Salience} salience // dedicated type // for CalculateMetrics interface
  * @property {Productivity} productivity // interface // for CalculateMetrics interface
  * @property {ArchiveHistory} // getLastArchived, isArchived, archivedAt // Should probably be handled in archive manager. interface ... bla bla. In addition, could leverage the bookmarks api from chrome to molest this part properly. i.e, could have a dedicated type Archive
+ *
  * @property {VisitHistory} // getVisitCount && getlastVisited // TODO: could have some kind of functionality extension but I digress for now
  */
 
-// TODO: actually defining the behaviours of NOte and removing the typedef
-class Note {}
-
-const sampleNotes = [
+const sampleTasks = [
 	{
-		id: "sample-note-1",
-		type: "note",
+		id: "sample-task-1",
+		title: "AI Research Paper",
+		color: "#3B82F6",
+		createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
+		lastActiveAt: Date.now() - 2 * 60 * 60 * 1000,
+		subtasks: [],
+		notes: [],
+		priority: 0.85,
+		archived: false,
+		metadata: {
+			totalTimeSpent: 8340,
+			tabCount: 0,
+			noteCount: 0,
+			lastSession: Date.now(),
+		},
+	},
+];
+
+const sampleSubtasks = [
+	{
+		id: "sample-sub-1",
 		taskId: "sample-task-1",
-		subtaskId: "sample-sub-1",
-		sourceTabId: "sample-tab-1",
-		title: "Key Transformer Insights",
-		content:
-			"Self-attention mechanism allows the model to weigh the importance of different words in a sentence. This is fundamentally different from RNNs which process sequentially. The transformer can parallelize computation across all positions, making it much more efficient for training on GPUs.",
-		excerpt: "",
-		tags: ["important", "cite", "attention"],
-		linkedNotes: [],
-		linkedTabs: ["sample-tab-1"],
-		linkedFiles: [],
-		citations: 3,
-		createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-		updatedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-		accessedAt: Date.now() - 2 * 60 * 60 * 1000,
-		isPinned: false,
-		isTodo: false,
-		todoStatus: "pending",
-		annotations: [],
-		position: { x: 0, y: 0 },
-		versionHistory: [],
+		title: "Transformer Models",
+		tabs: [],
+		createdAt: Date.now() - 6 * 24 * 60 * 60 * 1000,
+		order: 0,
 	},
 ];

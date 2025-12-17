@@ -17,3 +17,5 @@
  */
 
 // [web]PageBreaks + Special scrollbar (TODO: Check notes for exact specification on this one)
+
+class Annotation {}
