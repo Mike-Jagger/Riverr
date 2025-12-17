@@ -534,6 +534,7 @@
 	}
 
 	function renderAnnotations() {
+		// TODO: what about notes and clips
 		// Render saved annotations on the page
 		state.annotations.forEach((annotation) => {
 			if (annotation.type === "highlight") {
@@ -699,6 +700,8 @@
 				break;
 		}
 	}
+
+	// TODO: the use of shadowdom or sumn
 
 	async function toggleNotesSidebar() {
 		const sidebar = document.getElementById("ra-notes-sidebar");

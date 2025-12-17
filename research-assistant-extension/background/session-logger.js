@@ -30,6 +30,7 @@ export class SessionLogger {
 		console.log("Session started:", sessionId);
 	}
 
+	// TODO: when browser/tab/computer closes or crashes, this should be immeditaely called
 	async endSession() {
 		if (!this.currentSession) return;
 
@@ -123,7 +124,7 @@ export class SessionLogger {
 		}
 
 		await this.logEvent({
-			eventType: "dwell_start",
+			eventType: "dwell_start", // TODO: eventTypes.DWELL_START same as constants
 			tabId,
 			data: { timestamp: now },
 		});
@@ -144,7 +145,7 @@ export class SessionLogger {
 		});
 
 		await this.logEvent({
-			eventType: "dwell_end",
+			eventType: "dwell_end", // TODO: eventTypes.DWELL_END same as constants, do same with all other logEvents (subsequently classifying this as logEvents instead of eventType)
 			tabId,
 			data: {
 				timestamp: now,
@@ -157,6 +158,7 @@ export class SessionLogger {
 		await this.updateTabDwellHistory(tabId, timer.intervals);
 	}
 
+	// TODO: when browser/tab/computer closes or crashes, this should be immeditaely called
 	async endAllDwellTimes() {
 		const activeTabIds = Array.from(this.dwellTimers.keys());
 		for (const tabId of activeTabIds) {
@@ -459,6 +461,7 @@ export class SessionLogger {
 	// PRODUCTIVITY METRICS
 	// ============================================================================
 
+	// TODO: The todo on tab salience and productivity calculation, please refer to this function
 	async calculateProductivityMetrics(tabId) {
 		const dwellTime = this.getTotalDwellTime(tabId);
 		const signals = await this.getInteractionSignals(tabId);
@@ -574,7 +577,7 @@ export class SessionLogger {
 
 	async getDeviceInfo() {
 		return {
-			platform: navigator.platform,
+			platform: navigator.platform, // TODO: deprecated
 			userAgent: navigator.userAgent,
 			language: navigator.language,
 			screenResolution: {
@@ -584,6 +587,7 @@ export class SessionLogger {
 		};
 	}
 
+	// TODO: will have to enhance this version to get browser info as we extend the extension beyond chrome
 	getBrowserInfo() {
 		return {
 			name: "Chrome",
@@ -592,6 +596,7 @@ export class SessionLogger {
 		};
 	}
 
+	// TODO: by passing the tab id, we could easily get ts right?
 	async getViewport() {
 		try {
 			const tabs = await chrome.tabs.query({
@@ -610,6 +615,7 @@ export class SessionLogger {
 		return { width: 0, height: 0 };
 	}
 
+	// TODO: same as other UUID generator in service-worker.js
 	generateUUID() {
 		return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
 			const r = (Math.random() * 16) | 0;

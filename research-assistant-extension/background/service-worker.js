@@ -69,6 +69,9 @@ async function initDB() {
 			if (!database.objectStoreNames.contains("settings")) {
 				database.createObjectStore("settings", { keyPath: "key" });
 			}
+
+			// TODO: Resolve with DB if this is an intermittent request (i.e separate request response other than
+			// onSuccess or sumn IDK when function is called)
 		};
 	});
 }
@@ -77,6 +80,7 @@ async function initDB() {
 chrome.runtime.onInstalled.addListener(async (details) => {
 	console.log("Research Assistant installed:", details.reason);
 
+	// TODO: db = initDB(); instead of doing it within the initDB() function
 	await initDB();
 
 	if (details.reason === "install") {
@@ -85,6 +89,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 });
 
 chrome.runtime.onStartup.addListener(async () => {
+	// TODO: db = initDB(); same comment as above
 	await initDB();
 	await startNewSession();
 });
@@ -132,7 +137,7 @@ async function startNewSession() {
 chrome.tabs.onCreated.addListener(async (tab) => {
 	await sessionLogger.logEvent({
 		sessionId: currentSessionId,
-		eventType: "tab_open",
+		eventType: "tab_open", // TODO: event_type.TAB_OPEN use constants boi
 		tabId: tab.id.toString(),
 		data: {
 			url: tab.url,
@@ -146,7 +151,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 	if (changeInfo.status === "complete") {
 		await sessionLogger.logEvent({
 			sessionId: currentSessionId,
-			eventType: "tab_loaded",
+			eventType: "tab_loaded", // TODO: event_type.TAB_LOADED same as constants
 			tabId: tabId.toString(),
 			data: {
 				url: tab.url,
@@ -159,7 +164,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
 	await sessionLogger.logEvent({
 		sessionId: currentSessionId,
-		eventType: "tab_close",
+		eventType: "tab_close", // TODO: event_type.TAB_CLOSED same as constants
 		tabId: tabId.toString(),
 		data: {
 			windowClosing: removeInfo.windowClosing,
@@ -172,7 +177,8 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 
 	await sessionLogger.logEvent({
 		sessionId: currentSessionId,
-		eventType: "tab_switch",
+		eventType: "tab_switch", // TODO: event_type.TAB_SWITCH same as constants
+
 		tabId: activeInfo.tabId.toString(),
 		data: {
 			url: tab.url,
@@ -333,6 +339,7 @@ chrome.commands.onCommand.addListener(async (command) => {
 // ============================================================================
 
 async function handleSaveClip(tab, selection) {
+	// TODO: check note on clip vs annotation/note
 	const clip = {
 		id: generateUUID(),
 		type: "clip",
@@ -348,7 +355,7 @@ async function handleSaveClip(tab, selection) {
 	await saveToStorage("notes", clip);
 
 	await chrome.tabs.sendMessage(tab.id, {
-		action: "show_notification",
+		action: "show_notification", // TODO: no message handler defined
 		data: { message: "Clip saved!" },
 	});
 }
@@ -365,7 +372,7 @@ async function getAllTasksWithDetails() {
 			if (!subtaskMap.has(tab.subtaskId)) {
 				subtaskMap.set(tab.subtaskId, {
 					id: tab.subtaskId,
-					title: tab.subtaskId,
+					title: tab.subtaskId, // TODO: tab.subTask.name When you create proper models then fine
 					tabs: [],
 				});
 			}
@@ -379,6 +386,7 @@ async function getAllTasksWithDetails() {
 	});
 }
 
+// TODO: This is supposed to open sub-tasks (if defined) as tab groups then the associated tabs
 async function openTaskTabs(taskId) {
 	const tabs = await getAllFromStorage("tabs");
 	const taskTabs = tabs.filter((t) => t.taskId === taskId);
@@ -398,6 +406,7 @@ async function getWorkspaceState() {
 	return { tasks, notes, tabs };
 }
 
+// TODO: will have to refer to research paper or the way the original tab salience was calcualted to give accurate measurement
 function calculateTabSalience(tabId) {
 	return {
 		timeSpent: 1247,
@@ -407,6 +416,7 @@ function calculateTabSalience(tabId) {
 	};
 }
 
+// TODO: Persisting with filesys for add-in integration
 // ============================================================================
 // STORAGE HELPERS
 // ============================================================================
@@ -450,6 +460,7 @@ async function getAllFromStorage(storeName) {
 	});
 }
 
+// TODO: Well, gotta check existing ID's before generating new ones
 function generateUUID() {
 	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
 		const r = (Math.random() * 16) | 0;
