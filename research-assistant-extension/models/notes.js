@@ -1,6 +1,7 @@
 /**
  * Note
  * @typedef {Object} Note
+ *
  * @property {String} id
  * @property {ModelType} type // just easier for parsing and validation though not necessary with type definitions now in place
  *
@@ -23,8 +24,16 @@
  * @property {number} createdAt
  * @property {number} updatedAt
  * @property {number} accessedAt
- * @property {VersionHistory} versionHistory // TODO: should probably be stored in version control manager
+ * @property {VersionHistory} versionHistory // TODO: should probably be stored in version control manager. Interface with this property and concrete methods to retrieve/display it cleanly (could be retrieved from DB/provided History type/interface for instance)
+ *
+ * @property {Salience} salience // dedicated type // for CalculateMetrics interface
+ * @property {Productivity} productivity // interface // for CalculateMetrics interface
+ * @property {ArchiveHistory} // getLastArchived, isArchived, archivedAt // Should probably be handled in archive manager. interface ... bla bla. In addition, could leverage the bookmarks api from chrome to molest this part properly. i.e, could have a dedicated type Archive
+ * @property {VisitHistory} // getVisitCount && getlastVisited // TODO: could have some kind of functionality extension but I digress for now
  */
+
+// TODO: actually defining the behaviours of NOte and removing the typedef
+class Note {}
 
 const sampleNotes = [
 	{
