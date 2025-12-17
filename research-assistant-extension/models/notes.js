@@ -3,21 +3,26 @@
  * @typedef {Object} Note
  * @property {String} id
  * @property {ModelType} type // just easier for parsing and validation though not necessary with type definitions now in place
+ *
  * @property {Task} task
  * @property {SubTask} subTask
+ *
  * @property {String} title
  * @property {String} content
  * @property {Excerpt} excerpt // This will be used more by annotations
+ *
  * @property {Tag[]} tags
  * @property {Link[]} links // model links (for now) or citations (TODO: future)
+ * // property {} annotations // Already handled in links
+ * // property {} isPinned // TODO: Pinned is determined by task/subtask/file/inbox/notespace associated to
+ * @property {Todo} TodoStatus
+ *
+ * @property {GraphPositions} graphPositions // TODO: Should probably be stored in personal knowledge graph workspace
+ * @property {CanvasPositions} canvasPositions // TODO: Should probably be stored in open canvas workspace
+ *
  * @property {number} createdAt
  * @property {number} updatedAt
  * @property {number} accessedAt
- * // property {} isPinned // TODO: Pinned is determined by task/subtask/file/inbox/notespace associated to
- * @property {Todo} TodoStatus
- * // property {} annotations // Already handled in links
- * @property {GraphPositions} graphPositions // TODO: Should probably be stored in personal knowledge graph workspace
- * @property {CanvasPositions} canvasPositions // TODO: Should probably be stored in open canvas workspace
  * @property {VersionHistory} versionHistory // TODO: should probably be stored in version control manager
  */
 
