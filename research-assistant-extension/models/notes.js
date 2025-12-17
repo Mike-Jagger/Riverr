@@ -3,7 +3,7 @@
  * @typedef {Object} Note
  *
  * @property {String} id
- * @property {ModelType} type // just easier for parsing and validation though not necessary with type definitions now in place
+ * @property {ModelType} modelType // just easier for parsing and validation though not necessary with type definitions now in place
  *
  * @property {Task} task
  * @property {SubTask} subTask
@@ -18,8 +18,8 @@
  * // property {} isPinned // TODO: Pinned is determined by task/subtask/file/inbox/notespace associated to
  * @property {Todo} TodoStatus
  *
- * @property {GraphPositions} graphPositions // TODO: Should probably be stored in personal knowledge graph workspace
- * @property {CanvasPositions} canvasPositions // TODO: Should probably be stored in open canvas workspace
+ * @property {GraphCoordinates} graphCoordinates // TODO: Should probably be stored in personal knowledge graph workspace
+ * @property {CanvasCoordinates} canvasCoordinates // TODO: Should probably be stored in open canvas workspace
  *
  * @property {number} createdAt
  * @property {number} updatedAt
