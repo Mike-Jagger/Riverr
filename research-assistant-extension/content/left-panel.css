@@ -28,7 +28,7 @@ body {
 	justify-content: space-between;
 	padding: 16px;
 	border-bottom: 1px solid #e5e7eb;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: linear-gradient(135deg, #667eea 0%, #3b82f6 100%);
 	color: white;
 }
 
@@ -356,7 +356,7 @@ body {
 .primary-btn {
 	width: 100%;
 	padding: 10px 16px;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: linear-gradient(135deg, #667eea 0%, #3b82f6 100%);
 	color: white;
 	border: none;
 	border-radius: 6px;
