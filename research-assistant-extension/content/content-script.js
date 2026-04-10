@@ -120,36 +120,36 @@
 		document.body.appendChild(strip);
 
 		// --- Floating toggle button (top center) ---
-        const toggleBtn = document.createElement("div");
-        toggleBtn.id = "ra-salience-toggle";
-        toggleBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-        toggleBtn.style.position = "fixed";
-        toggleBtn.style.top = "0";
-        toggleBtn.style.left = "50%";
-        toggleBtn.style.transform = "translate(-50%, 0)";
-        toggleBtn.style.width = "32px";
-        toggleBtn.style.height = "16px";
-        toggleBtn.style.borderRadius = "0 0 6px 6px";
-        
-        // Taste Skill Styling
-        toggleBtn.style.background = "rgba(28, 28, 30, 0.85)";
-        toggleBtn.style.backdropFilter = "blur(12px)";
-        toggleBtn.style.border = "1px solid rgba(255, 255, 255, 0.08)";
-        toggleBtn.style.borderTop = "none";
-        toggleBtn.style.color = "#A1A1A6";
-        
-        toggleBtn.style.display = "flex";
-        toggleBtn.style.alignItems = "center";
-        toggleBtn.style.justifyContent = "center";
-        toggleBtn.style.cursor = "pointer";
-        toggleBtn.style.zIndex = "1000000";
-        toggleBtn.style.transition = "opacity 0.2s ease, color 0.2s ease";
-        toggleBtn.style.opacity = "0";
-        
-        toggleBtn.onmouseenter = () => toggleBtn.style.color = "#FFF";
-        toggleBtn.onmouseleave = () => toggleBtn.style.color = "#A1A1A6";
-        
-        document.body.appendChild(toggleBtn);
+		const toggleBtn = document.createElement("div");
+		toggleBtn.id = "ra-salience-toggle";
+		toggleBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+		toggleBtn.style.position = "fixed";
+		toggleBtn.style.top = "0";
+		toggleBtn.style.left = "50%";
+		toggleBtn.style.transform = "translate(-50%, 0)";
+		toggleBtn.style.width = "32px";
+		toggleBtn.style.height = "16px";
+		toggleBtn.style.borderRadius = "0 0 6px 6px";
+
+		// Taste Skill Styling
+		toggleBtn.style.background = "rgba(28, 28, 30, 0.85)";
+		toggleBtn.style.backdropFilter = "blur(12px)";
+		toggleBtn.style.border = "1px solid rgba(255, 255, 255, 0.08)";
+		toggleBtn.style.borderTop = "none";
+		toggleBtn.style.color = "#A1A1A6";
+
+		toggleBtn.style.display = "flex";
+		toggleBtn.style.alignItems = "center";
+		toggleBtn.style.justifyContent = "center";
+		toggleBtn.style.cursor = "pointer";
+		toggleBtn.style.zIndex = "1000000";
+		toggleBtn.style.transition = "opacity 0.2s ease, color 0.2s ease";
+		toggleBtn.style.opacity = "0";
+
+		toggleBtn.onmouseenter = () => (toggleBtn.style.color = "#FFF");
+		toggleBtn.onmouseleave = () => (toggleBtn.style.color = "#A1A1A6");
+
+		document.body.appendChild(toggleBtn);
 
 		// Setup close button
 		const closeBtn = document.getElementById("ra-close-strip");
@@ -432,7 +432,7 @@
 					pageTitle: document.title,
 					pageUrl: window.location.href,
 				},
-				"*"
+				"*",
 			);
 		};
 
@@ -517,22 +517,22 @@
 	}
 
 	function showAnnotationMenu(selection) {
-        // Remove existing menu instantly to prevent ghosting
-        const existingMenu = document.getElementById("ra-annotation-menu");
-        if (existingMenu) existingMenu.remove();
+		// Remove existing menu instantly to prevent ghosting
+		const existingMenu = document.getElementById("ra-annotation-menu");
+		if (existingMenu) existingMenu.remove();
 
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
+		const range = selection.getRangeAt(0);
+		const rect = range.getBoundingClientRect();
 
-        const menu = document.createElement("div");
-        menu.id = "ra-annotation-menu";
-        menu.className = "ra-annotation-menu"; 
-        
-        // Position it slightly higher so it floats *above* the text, not on it
-        menu.style.left = `${rect.left + rect.width / 2}px`;
-        menu.style.top = `${rect.top + window.scrollY - 45}px`; 
-        
-        menu.innerHTML = `
+		const menu = document.createElement("div");
+		menu.id = "ra-annotation-menu";
+		menu.className = "ra-annotation-menu";
+
+		// Position it slightly higher so it floats *above* the text, not on it
+		menu.style.left = `${rect.left + rect.width / 2}px`;
+		menu.style.top = `${rect.top + window.scrollY - 45}px`;
+
+		menu.innerHTML = `
       <button data-action="highlight" title="Highlight">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 18H3l8-8-4-4 4-4 4 4 4-4 4 4-4 4 8 8h-9z"></path>
@@ -553,42 +553,42 @@
       </button>
     `;
 
-        document.body.appendChild(menu);
+		document.body.appendChild(menu);
 
-        // Trigger the hardware-accelerated CSS animation
-        requestAnimationFrame(() => {
-            menu.classList.add('is-visible');
-        });
+		// Trigger the hardware-accelerated CSS animation
+		requestAnimationFrame(() => {
+			menu.classList.add("is-visible");
+		});
 
-        // Add event listeners (Unchanged logic)
-        menu.querySelectorAll("button").forEach((btn) => {
-            btn.addEventListener("click", async (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                
-                // Visual feedback: briefly scale down the button
-                btn.style.transform = "scale(0.9)";
-                
-                const action = btn.dataset.action;
-                await handleAnnotationAction(action);
-                
-                // Fade out smoothly
-                menu.classList.remove('is-visible');
-                setTimeout(() => menu.remove(), 150);
-            });
-        });
+		// Add event listeners (Unchanged logic)
+		menu.querySelectorAll("button").forEach((btn) => {
+			btn.addEventListener("click", async (e) => {
+				e.stopPropagation();
+				e.preventDefault();
 
-        // Remove menu on click outside
-        setTimeout(() => {
-            document.addEventListener("mousedown", function removeMenu(e) {
-                if (!menu.contains(e.target)) {
-                    menu.classList.remove('is-visible');
-                    setTimeout(() => menu.remove(), 150);
-                    document.removeEventListener("mousedown", removeMenu);
-                }
-            });
-        }, 50);
-    }
+				// Visual feedback: briefly scale down the button
+				btn.style.transform = "scale(0.9)";
+
+				const action = btn.dataset.action;
+				await handleAnnotationAction(action);
+
+				// Fade out smoothly
+				menu.classList.remove("is-visible");
+				setTimeout(() => menu.remove(), 150);
+			});
+		});
+
+		// Remove menu on click outside
+		setTimeout(() => {
+			document.addEventListener("mousedown", function removeMenu(e) {
+				if (!menu.contains(e.target)) {
+					menu.classList.remove("is-visible");
+					setTimeout(() => menu.remove(), 150);
+					document.removeEventListener("mousedown", removeMenu);
+				}
+			});
+		}, 50);
+	}
 
 	async function handleAnnotationAction(action) {
 		if (!state.selection) return;
@@ -846,7 +846,91 @@
 				state.selection = { text: data.selectedText };
 				await createHighlight(data.color);
 				break;
+			case "enter_recall_mode":
+				await handleRecallMode(data.event);
+				break;
 		}
+	}
+
+	async function handleRecallMode(event) {
+		if (!state.notesSidebarOpen) {
+			await toggleNotesSidebar();
+		}
+
+		const sidebar = document.getElementById("ra-notes-sidebar");
+		const notesList = document.getElementById("ra-notes-list");
+		if (!sidebar || !notesList) return;
+
+		// Render the historical snapshot
+		notesList.innerHTML = `
+			<div class="ra-recall-banner" style="background: #FFF3E0; padding: 10px; border-radius: 4px; margin-bottom: 10px; border-left: 4px solid #FF9800; color: #E65100;">
+				<strong style="display:block; margin-bottom:4px;">Viewing Historical Snapshot</strong>
+				<small>${new Date(event.timestamp).toLocaleString()}</small>
+			</div>
+		`;
+
+		const item = document.createElement("div");
+		item.className = "ra-note-item ra-history-snapshot";
+		item.style.borderLeft = "4px solid #FF9800";
+		item.style.backgroundColor = "#FFFDF8";
+
+		if (
+			event.eventType === "NOTE_CREATED" ||
+			event.eventType === "NOTE_EDITED" ||
+			event.eventType === "CLIP_CREATED"
+		) {
+			item.innerHTML = `
+				<div class="ra-note-tags-label">
+					<strong>${event.snapshot.title || "Untitled"}</strong>
+				</div>
+				<div class="ra-note-label">${event.snapshot.content || event.snapshot.excerpt || ""}</div>
+			`;
+		} else if (event.eventType === "ANNOTATION_ADDED") {
+			item.innerHTML = `
+				<div class="ra-note-tags-label">
+					<strong>Highlight Edit</strong>
+					<span style="display:inline-block; width:12px; height:12px; background:${event.snapshot.color || "#FFEB3B"}; border-radius:50%; margin-left: 6px; vertical-align: middle;"></span>
+				</div>
+				<div class="ra-note-label">"${event.snapshot.selectedText || event.snapshot.excerpt || ""}"</div>
+			`;
+
+			// Try to highlight it dynamically on the page
+			try {
+				const range = deserializeRange(event.snapshot.range);
+				if (range) {
+					const span = document.createElement("span");
+					span.className = "ra-highlight ra-recall-highlight";
+					span.style.backgroundColor =
+						event.snapshot.color || "#FFEB3B";
+					span.style.outline = "2px dashed #FF9800";
+					range.surroundContents(span);
+					span.scrollIntoView({
+						behavior: "smooth",
+						block: "center",
+					});
+				}
+			} catch (e) {
+				console.log(
+					"Could not render historical annotation range on this page layout.",
+				);
+			}
+		}
+
+		notesList.appendChild(item);
+
+		// Add Exit Button
+		const returnBtn = document.createElement("button");
+		returnBtn.textContent = "Exit Recall Mode";
+		returnBtn.style.marginTop = "15px";
+		returnBtn.style.width = "100%";
+		returnBtn.style.padding = "8px";
+		returnBtn.style.backgroundColor = "#E0E0E0";
+		returnBtn.style.border = "none";
+		returnBtn.style.borderRadius = "4px";
+		returnBtn.style.cursor = "pointer";
+		returnBtn.onclick = () => loadNotes(); // Resets back to live notes
+
+		notesList.appendChild(returnBtn);
 	}
 
 	// TODO: the use of shadowdom or sumn
@@ -927,14 +1011,14 @@
 				document,
 				null,
 				XPathResult.FIRST_ORDERED_NODE_TYPE,
-				null
+				null,
 			).singleNodeValue;
 			const endNode = document.evaluate(
 				serialized.endContainer,
 				document,
 				null,
 				XPathResult.FIRST_ORDERED_NODE_TYPE,
-				null
+				null,
 			).singleNodeValue;
 
 			if (!startNode || !endNode) return null;
