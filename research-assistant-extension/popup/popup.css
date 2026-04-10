@@ -1,9 +1,14 @@
 :root {
-    --bg-main: #1C1C1E;
-    --bg-secondary: #2C2C2E;
+    // --bg-main: #1C1C1E;
+    // --bg-secondary: #2C2C2E;
+    // --border: rgba(255, 255, 255, 0.1);
+    // --text-primary: #FFFFFF;
+    // --text-muted: #A1A1A6;
+    --bg-main: white;
+    --bg-secondary: white;
     --border: rgba(255, 255, 255, 0.1);
-    --text-primary: #FFFFFF;
-    --text-muted: #A1A1A6;
+    --text-primary: black;
+    --text-muted: black;
     --accent: #0A84FF;
 }
 
