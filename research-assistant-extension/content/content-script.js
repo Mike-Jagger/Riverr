@@ -132,11 +132,11 @@
 		toggleBtn.style.borderRadius = "0 0 6px 6px";
 
 		// Taste Skill Styling
-		toggleBtn.style.background = "#3b82f6";
+		toggleBtn.style.background = "rgba(28, 28, 30, 0.85)";
 		toggleBtn.style.backdropFilter = "blur(12px)";
 		toggleBtn.style.border = "1px solid rgba(255, 255, 255, 0.08)";
 		toggleBtn.style.borderTop = "none";
-		toggleBtn.style.color = "#FFF";
+		toggleBtn.style.color = "#A1A1A6";
 
 		toggleBtn.style.display = "flex";
 		toggleBtn.style.alignItems = "center";
@@ -146,8 +146,8 @@
 		toggleBtn.style.transition = "opacity 0.2s ease, color 0.2s ease";
 		toggleBtn.style.opacity = "0";
 
-		//toggleBtn.onmouseenter = () => (toggleBtn.style.color = "#FFF");
-		//toggleBtn.onmouseleave = () => (toggleBtn.style.color = "#A1A1A6");
+		toggleBtn.onmouseenter = () => (toggleBtn.style.color = "#FFF");
+		toggleBtn.onmouseleave = () => (toggleBtn.style.color = "#A1A1A6");
 
 		document.body.appendChild(toggleBtn);
 
