@@ -244,6 +244,44 @@ const SAMPLE_DATA = {
 			time: Date.now() - 1 * 24 * 60 * 60 * 1000,
 		},
 	],
+	sessionEvents: [
+		{
+			eventId: "m1",
+			taskId: "task-1",
+			timestamp: Date.now() - 1000 * 60 * 60 * 48, // 2 days ago
+			eventType: "NOTE_CREATED",
+			url: "https://en.wikipedia.org/wiki/Human%E2%80%93computer_interaction",
+			snapshot: {
+				title: "HCI Overview",
+				content:
+					"Human-computer interaction studies the design and use of computer technology.",
+			},
+		},
+		{
+			eventId: "m2",
+			taskId: "task-1",
+			timestamp: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
+			eventType: "ANNOTATION_ADDED",
+			url: "https://en.wikipedia.org/wiki/Human%E2%80%93computer_interaction",
+			snapshot: {
+				color: "#FFEB3B",
+				selectedText:
+					"focused on the interfaces between people and computers",
+			},
+		},
+		{
+			eventId: "m3",
+			taskId: "task-2",
+			timestamp: Date.now() - 1000 * 60 * 30, // 30 mins ago
+			eventType: "CLIP_CREATED",
+			url: "https://developer.chrome.com/docs/extensions/",
+			snapshot: {
+				title: "Extensions API",
+				excerpt:
+					"Extensions are software programs, built on web technologies...",
+			},
+		},
+	],
 };
 
 // ============================================================================
@@ -271,7 +309,7 @@ function setupEventListeners() {
 	document
 		.querySelectorAll(".view-tab")
 		.forEach((tab) =>
-			tab.addEventListener("click", () => switchView(tab.dataset.view))
+			tab.addEventListener("click", () => switchView(tab.dataset.view)),
 		);
 
 	document
@@ -294,7 +332,7 @@ function switchView(viewName) {
 	document
 		.querySelectorAll(".view-tab")
 		.forEach((tab) =>
-			tab.classList.toggle("active", tab.dataset.view === viewName)
+			tab.classList.toggle("active", tab.dataset.view === viewName),
 		);
 	document
 		.querySelectorAll(".view-container")
@@ -378,11 +416,11 @@ function renderRecentActivity() {
 function renderQuickStats() {
 	const totalTabs = currentData.tasks.reduce(
 		(sum, t) => sum + t.metadata.tabCount,
-		0
+		0,
 	);
 	const totalTime = currentData.tasks.reduce(
 		(sum, t) => sum + t.metadata.totalTimeSpent,
-		0
+		0,
 	);
 	document.getElementById("stat-tasks").textContent =
 		currentData.tasks.length;
@@ -390,7 +428,7 @@ function renderQuickStats() {
 	document.getElementById("stat-notes").textContent =
 		currentData.notes.length;
 	document.getElementById("stat-time").textContent = `${Math.round(
-		totalTime / 3600
+		totalTime / 3600,
 	)}h`;
 }
 
@@ -406,7 +444,7 @@ function renderQuickNotes() {
 			el.innerHTML = `<div class="note-preview-title">${note.title}</div>
       <div class="note-preview-content">${note.content.substring(
 			0,
-			80
+			80,
 		)}...</div>
       <div class="note-preview-tags">${note.tags
 			.map((tag) => `<span class="tag">${tag}</span>`)
@@ -451,7 +489,7 @@ function renderInbox() {
 		el.innerHTML = `<div class="inbox-icon">${getInboxIcon(item.type)}</div>
       <div class="inbox-content"><div class="inbox-title">${item.title}</div>
       <div class="inbox-meta">${item.source} • ${formatRelativeTime(
-			item.time
+			item.time,
 		)}</div></div>
       <button class="inbox-action" data-id="${item.id}">Process</button>`;
 		container.appendChild(el);
@@ -492,11 +530,11 @@ function openNoteInEditor(note) {
     <div class="note-tags">${note.tags
 		.map(
 			(tag) =>
-				`<span class="tag">${tag} <button class="remove-tag">×</button></span>`
+				`<span class="tag">${tag} <button class="remove-tag">×</button></span>`,
 		)
 		.join("")}<button class="add-tag-btn">+ Add Tag</button></div>
     <div class="note-meta-info"><span>Created: ${new Date(
-		note.createdAt
+		note.createdAt,
 	).toLocaleDateString()}</span><span>${note.citations} citations</span></div>
   </div>`;
 
@@ -578,7 +616,7 @@ function handleGlobalSearch(e) {
 	const filteredNotes = currentData.notes.filter(
 		(n) =>
 			n.title.toLowerCase().includes(query) ||
-			n.content.toLowerCase().includes(query)
+			n.content.toLowerCase().includes(query),
 	);
 	const container = document.getElementById("notes-list");
 	container.innerHTML = "";
@@ -588,7 +626,7 @@ function handleGlobalSearch(e) {
 		el.innerHTML = `<div class="note-list-title">${note.title}</div>
       <div class="note-list-preview">${note.content.substring(
 			0,
-			100
+			100,
 		)}...</div>`;
 		el.addEventListener("click", () => openNoteInEditor(note));
 		container.appendChild(el);
@@ -605,9 +643,118 @@ function renderGraph() {
 }
 
 function renderReplay() {
-	const container = document.getElementById("timeline-events");
-	container.innerHTML =
-		"<p class='info-message'>Session replay will show your complete research journey</p>";
+	// Find the container. Support both possible container IDs
+	let container = document.getElementById("timeline-events");
+	if (!container) container = document.getElementById("replay-view");
+	if (!container) return;
+
+	// Build the basic layout: Task selector + Grid
+	container.innerHTML = `
+		<div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #eee;">
+			<label for="replay-task-selector" style="font-weight: 600; margin-right: 12px; color: #333;">Select Task to Replay:</label>
+			<select id="replay-task-selector" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; min-width: 250px;">
+				${currentData.tasks.map((t) => `<option value="${t.id}">${t.title}</option>`).join("")}
+			</select>
+		</div>
+		<div id="replay-grid" class="replay-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;"></div>
+	`;
+
+	const taskSelector = document.getElementById("replay-task-selector");
+	const grid = document.getElementById("replay-grid");
+
+	// Listen for changes
+	taskSelector.addEventListener("change", (e) => {
+		renderSessionEventsForTask(e.target.value, grid);
+	});
+
+	// Initial render for the first task
+	if (currentData.tasks.length > 0) {
+		renderSessionEventsForTask(currentData.tasks[0].id, grid);
+	}
+}
+
+function renderSessionEventsForTask(taskId, grid) {
+	grid.innerHTML = "";
+
+	const events = (currentData.sessionEvents || []).filter(
+		(e) => e.taskId === taskId,
+	);
+
+	if (events.length === 0) {
+		grid.innerHTML =
+			"<p style='grid-column: 1 / -1; color: #666;'>No session history recorded for this task yet.</p>";
+		return;
+	}
+
+	const grouped = groupEventsByDay(events);
+
+	for (const [date, dayEvents] of Object.entries(grouped)) {
+		const dayHeader = document.createElement("h3");
+		dayHeader.textContent = date;
+		dayHeader.className = "replay-date-header";
+		dayHeader.style.gridColumn = "1 / -1";
+		dayHeader.style.marginTop = "20px";
+		dayHeader.style.borderBottom = "2px solid #f0f0f0";
+		dayHeader.style.paddingBottom = "8px";
+		grid.appendChild(dayHeader);
+
+		dayEvents.forEach((event) => {
+			const card = document.createElement("div");
+			card.className = "replay-card";
+			card.style.cssText =
+				"background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer; display: flex; flex-direction: column; gap: 8px; transition: transform 0.2s ease, box-shadow 0.2s ease;";
+
+			let title = event.eventType.replace("_", " ");
+			let excerpt = "";
+			let badgeColor = "#E8F5E9";
+			let badgeTextColor = "#2E7D32";
+
+			if (event.eventType.includes("ANNOTATION")) {
+				badgeColor = "#FFFDE7";
+				badgeTextColor = "#F57F17";
+			} else if (event.eventType.includes("CLIP")) {
+				badgeColor = "#E3F2FD";
+				badgeTextColor = "#0288D1";
+			}
+
+			if (event.snapshot) {
+				title = event.snapshot.title || title;
+				excerpt =
+					event.snapshot.content ||
+					event.snapshot.selectedText ||
+					event.snapshot.excerpt ||
+					"";
+			}
+
+			card.innerHTML = `
+				<div style="display: flex; justify-content: space-between; align-items: center;">
+					<span class="replay-badge" style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; text-transform: uppercase; background: ${badgeColor}; color: ${badgeTextColor};">${event.eventType.split("_")[0]}</span>
+					<div style="font-size: 11px; color: #888;">${new Date(event.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+				</div>
+				<div style="font-weight: 600; color: #333; margin-top: 4px;">${title}</div>
+				<div style="font-size: 13px; color: #555; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; background: #fafafa; padding: 8px; border-radius: 4px; font-style: italic;">
+					"${excerpt}"
+				</div>
+			`;
+
+			card.onmouseenter = () => {
+				card.style.transform = "translateY(-2px)";
+				card.style.boxShadow = "0 6px 16px rgba(0,0,0,0.08)";
+				card.style.borderColor = "#FF9800";
+			};
+			card.onmouseleave = () => {
+				card.style.transform = "none";
+				card.style.boxShadow = "none";
+				card.style.borderColor = "#e0e0e0";
+			};
+
+			card.onclick = () => {
+				chrome.runtime.sendMessage({ action: "RECALL_EVENT", event });
+			};
+
+			grid.appendChild(card);
+		});
+	}
 }
 
 // ============================================================================
@@ -668,4 +815,17 @@ function getInboxIcon(type) {
 		default:
 			return "📎";
 	}
+}
+
+function groupEventsByDay(events) {
+	return events.reduce((groups, event) => {
+		const date = new Date(event.timestamp).toLocaleDateString(undefined, {
+			weekday: "short",
+			month: "short",
+			day: "numeric",
+		});
+		if (!groups[date]) groups[date] = [];
+		groups[date].push(event);
+		return groups;
+	}, {});
 }

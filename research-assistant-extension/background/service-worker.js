@@ -12,13 +12,12 @@ import { initializeSampleData } from "../lib/sample-data.js";
 const sessionLogger = new SessionLogger();
 let currentSessionId = null;
 let activeTasks = new Map();
-let globalActiveTaskId = null; 
+let globalActiveTaskId = null;
 let db = null;
 
 // Initialize IndexedDB connection
 async function initDB() {
 	return new Promise((resolve, reject) => {
-		
 		const request = indexedDB.open("ResearchAssistantDB", 1);
 
 		request.onerror = () => reject(request.error);
@@ -117,8 +116,7 @@ async function initializeExtension() {
 			showProductivityReports: true,
 			edgeLighting: false,
 		},
-		}
-	);
+	});
 
 	// Initialize sample data for demo
 	// const { initializeSampleData } = await import("../lib/sample-data.js");
@@ -137,11 +135,14 @@ async function initializeExtension() {
 
 	await startNewSession();
 
-	const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (activeTab) {
-        activeTabId = activeTab.id;
-        await sessionLogger.startDwellTime(activeTabId.toString());
-    }
+	const [activeTab] = await chrome.tabs.query({
+		active: true,
+		currentWindow: true,
+	});
+	if (activeTab) {
+		activeTabId = activeTab.id;
+		await sessionLogger.startDwellTime(activeTabId.toString());
+	}
 }
 
 async function startNewSession() {
@@ -157,59 +158,59 @@ async function startNewSession() {
 let activeTabId = null; // Track the currently viewed tab
 
 chrome.tabs.onCreated.addListener(async (tab) => {
-    await sessionLogger.logEvent({
-        sessionId: currentSessionId,
-        eventType: "tab_open", 
-        tabId: tab.id.toString(),
-        data: { url: tab.url, title: tab.title, openerTabId: tab.openerTabId },
-    });
+	await sessionLogger.logEvent({
+		sessionId: currentSessionId,
+		eventType: "tab_open",
+		tabId: tab.id.toString(),
+		data: { url: tab.url, title: tab.title, openerTabId: tab.openerTabId },
+	});
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.status === "complete" && tab.url) {
-        await sessionLogger.logEvent({
-            sessionId: currentSessionId,
-            eventType: "tab_loaded",
-            tabId: tabId.toString(),
-            data: { url: tab.url, title: tab.title },
-        });
-        
-        // Start timing if this tab loaded in the foreground
-        if (activeTabId === tabId) {
-            await sessionLogger.startDwellTime(tabId.toString());
-        }
-    }
+	if (changeInfo.status === "complete" && tab.url) {
+		await sessionLogger.logEvent({
+			sessionId: currentSessionId,
+			eventType: "tab_loaded",
+			tabId: tabId.toString(),
+			data: { url: tab.url, title: tab.title },
+		});
+
+		// Start timing if this tab loaded in the foreground
+		if (activeTabId === tabId) {
+			await sessionLogger.startDwellTime(tabId.toString());
+		}
+	}
 });
 
 chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
-    await sessionLogger.endDwellTime(tabId.toString());
-    if (activeTabId === tabId) activeTabId = null;
-    
-    await sessionLogger.logEvent({
-        sessionId: currentSessionId,
-        eventType: "tab_close",
-        tabId: tabId.toString(),
-        data: { windowClosing: removeInfo.windowClosing },
-    });
+	await sessionLogger.endDwellTime(tabId.toString());
+	if (activeTabId === tabId) activeTabId = null;
+
+	await sessionLogger.logEvent({
+		sessionId: currentSessionId,
+		eventType: "tab_close",
+		tabId: tabId.toString(),
+		data: { windowClosing: removeInfo.windowClosing },
+	});
 });
 
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
-    // Stop the timer on the previous tab
-    if (activeTabId) {
-        await sessionLogger.endDwellTime(activeTabId.toString());
-    }
-    
-    // Start the timer on the new tab
-    activeTabId = activeInfo.tabId;
-    await sessionLogger.startDwellTime(activeTabId.toString());
+	// Stop the timer on the previous tab
+	if (activeTabId) {
+		await sessionLogger.endDwellTime(activeTabId.toString());
+	}
 
-    const tab = await chrome.tabs.get(activeInfo.tabId);
-    await sessionLogger.logEvent({
-        sessionId: currentSessionId,
-        eventType: "tab_switch", 
-        tabId: activeInfo.tabId.toString(),
-        data: { url: tab.url, title: tab.title },
-    });
+	// Start the timer on the new tab
+	activeTabId = activeInfo.tabId;
+	await sessionLogger.startDwellTime(activeTabId.toString());
+
+	const tab = await chrome.tabs.get(activeInfo.tabId);
+	await sessionLogger.logEvent({
+		sessionId: currentSessionId,
+		eventType: "tab_switch",
+		tabId: activeInfo.tabId.toString(),
+		data: { url: tab.url, title: tab.title },
+	});
 });
 
 // ============================================================================
@@ -273,6 +274,49 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	return true; // Keep channel open for async response
 });
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+	if (message.action === "GET_TASK_HISTORY") {
+		getTaskHistory(message.taskId).then(sendResponse);
+		return true; // Keep channel open for async
+	}
+
+	if (message.action === "RECALL_EVENT") {
+		const event = message.event;
+
+		// Check if the URL is already open in a tab
+		chrome.tabs.query({ url: event.url }, (tabs) => {
+			let targetTabId;
+			if (tabs.length > 0) {
+				targetTabId = tabs[0].id;
+				chrome.tabs.update(targetTabId, { active: true });
+				triggerRecallMode(targetTabId, event);
+			} else {
+				chrome.tabs.create({ url: event.url }, (tab) => {
+					// Wait for the new tab to load before sending message
+					chrome.tabs.onUpdated.addListener(
+						function listener(tabId, info) {
+							if (
+								tabId === tab.id &&
+								info.status === "complete"
+							) {
+								chrome.tabs.onUpdated.removeListener(listener);
+								triggerRecallMode(tabId, event);
+							}
+						},
+					);
+				});
+			}
+		});
+	}
+});
+
+function triggerRecallMode(tabId, event) {
+	chrome.tabs.sendMessage(tabId, {
+		action: "enter_recall_mode",
+		data: { event },
+	});
+}
+
 async function handleMessage(message, sender) {
 	const { action, data } = message;
 
@@ -289,19 +333,22 @@ async function handleMessage(message, sender) {
 			return { tasks };
 
 		case "get_current_task":
-            return { 
-                tabId: sender.tab?.id,
-                task: null
-            };
+			return {
+				tabId: sender.tab?.id,
+				task: null,
+			};
 
 		case "get_active_task_id":
-            return { taskId: globalActiveTaskId };
+			return { taskId: globalActiveTaskId };
 
-        case "set_active_task":
-            globalActiveTaskId = data.taskId;
-            console.log("Context switched. Active Task ID:", globalActiveTaskId);
-            return { success: true };
-			
+		case "set_active_task":
+			globalActiveTaskId = data.taskId;
+			console.log(
+				"Context switched. Active Task ID:",
+				globalActiveTaskId,
+			);
+			return { success: true };
+
 		case "create_note": {
 			const noteId = generateUUID();
 			const allTabs = await getAllFromStorage("tabs");
@@ -322,7 +369,7 @@ async function handleMessage(message, sender) {
 
 			// 1 Try to find the matching tab
 			let matchedTab = allTabs.find(
-				(t) => t.url && normalize(t.url) === normalizedUrl
+				(t) => t.url && normalize(t.url) === normalizedUrl,
 			);
 
 			// Fallback: check provenance relationships
@@ -330,7 +377,7 @@ async function handleMessage(message, sender) {
 				matchedTab = allTabs.find(
 					(t) =>
 						t.provenance?.sourceUrl &&
-						normalize(t.provenance.sourceUrl) === normalizedUrl
+						normalize(t.provenance.sourceUrl) === normalizedUrl,
 				);
 			}
 
@@ -341,14 +388,14 @@ async function handleMessage(message, sender) {
 			// 3️ If no tab found, try guessing from active context (e.g. lastActive task)
 			if (!taskId) {
 				const recentTask = allTasks.sort(
-					(a, b) => (b.lastActiveAt || 0) - (a.lastActiveAt || 0)
+					(a, b) => (b.lastActiveAt || 0) - (a.lastActiveAt || 0),
 				)[0];
 				taskId = recentTask?.id || null;
 			}
 
 			if (!subtaskId && taskId) {
 				const relatedSubtask = allSubtasks.find(
-					(s) => s.taskId === taskId
+					(s) => s.taskId === taskId,
 				);
 				subtaskId = relatedSubtask?.id || null;
 			}
@@ -391,7 +438,7 @@ async function handleMessage(message, sender) {
 			}
 
 			console.log(
-				`Created note ${note.id} linked to task=${taskId}, subtask=${subtaskId}, tab=${matchedTab?.id}`
+				`Created note ${note.id} linked to task=${taskId}, subtask=${subtaskId}, tab=${matchedTab?.id}`,
 			);
 			return { success: true, note };
 		}
@@ -475,7 +522,7 @@ async function handleMessage(message, sender) {
 						normalize(t.provenance.sourceUrl) ===
 							normalizedPageUrl &&
 						(note.sourceTabId === t.id ||
-							note.linkedTabs?.includes(t.id))
+							note.linkedTabs?.includes(t.id)),
 				);
 				if (provenanceMatch) return true;
 
@@ -596,68 +643,77 @@ async function getWorkspaceState() {
 
 // DONE
 async function calculateTabSalience(tabId) {
-    try {
-        const tab = await chrome.tabs.get(tabId);
-        const urlStr = tab.url || "";
-        const stringTabId = tabId.toString();
+	try {
+		const tab = await chrome.tabs.get(tabId);
+		const urlStr = tab.url || "";
+		const stringTabId = tabId.toString();
 
-        // 1. Calculate Live Dwell Time (In-Memory, no DB thrashing)
-        let liveOffsetMs = 0;
-        const timer = sessionLogger.dwellTimers.get(stringTabId);
-        
-        // If the user is currently looking at this tab, calculate the running time
-        if (activeTabId === tabId && timer && timer.start) {
-            liveOffsetMs = Date.now() - timer.start;
-        }
-        
-        const savedDwellTimeMs = sessionLogger.getTotalDwellTime(stringTabId);
-        const timeSpent = Math.floor((savedDwellTimeMs + liveOffsetMs) / 1000);
+		// 1. Calculate Live Dwell Time (In-Memory, no DB thrashing)
+		let liveOffsetMs = 0;
+		const timer = sessionLogger.dwellTimers.get(stringTabId);
 
-        // 2. Calculate Origin
-        let origin = "Direct";
-        if (tab.openerTabId) {
-            try {
-                const openerTab = await chrome.tabs.get(tab.openerTabId);
-                const openerUrl = new URL(openerTab.url);
-                origin = openerUrl.hostname.replace(/^www\./, ''); 
-            } catch (e) {
-                origin = "Previous Tab";
-            }
-        } else if (urlStr.includes("google.com/search")) {
-            origin = "google.com";
-        }
+		// If the user is currently looking at this tab, calculate the running time
+		if (activeTabId === tabId && timer && timer.start) {
+			liveOffsetMs = Date.now() - timer.start;
+		}
 
-        // 3. Calculate Visits
-        const allTabs = await getAllFromStorage("tabs");
-        let visits = 1;
-        if (urlStr) {
-            const currentUrlBase = urlStr.split('?')[0]; 
-            visits = allTabs.filter(t => t.url && t.url.split('?')[0] === currentUrlBase).length;
-            if (visits === 0) visits = 1; 
-        }
+		const savedDwellTimeMs = sessionLogger.getTotalDwellTime(stringTabId);
+		const timeSpent = Math.floor((savedDwellTimeMs + liveOffsetMs) / 1000);
 
-        // 4. Calculate Productivity Score
-        const prodMetrics = await sessionLogger.calculateProductivityMetrics(stringTabId);
-        
-        // Add the live time offset to the productivity calculation so the green bar grows in real-time
-        const totalLiveDwell = savedDwellTimeMs + liveOffsetMs;
-        const timeScore = Math.min(totalLiveDwell / (30 * 60 * 1000), 1.0) * 0.2; 
-        
-        let productivity = (prodMetrics.productivityScore || 0) + timeScore;
-        
-        // Ensure the bar is always at least 5% visible so the user knows it exists
-        if (productivity < 0.05) productivity = 0.05; 
+		// 2. Calculate Origin
+		let origin = "Direct";
+		if (tab.openerTabId) {
+			try {
+				const openerTab = await chrome.tabs.get(tab.openerTabId);
+				const openerUrl = new URL(openerTab.url);
+				origin = openerUrl.hostname.replace(/^www\./, "");
+			} catch (e) {
+				origin = "Previous Tab";
+			}
+		} else if (urlStr.includes("google.com/search")) {
+			origin = "google.com";
+		}
 
-        return {
-            timeSpent: timeSpent,
-            origin: origin,
-            visits: visits,
-            productivity: productivity,
-        };
-    } catch (error) {
-        console.error("Failed to calculate salience:", error);
-        return { timeSpent: 0, origin: "Direct", visits: 1, productivity: 0.05 };
-    }
+		// 3. Calculate Visits
+		const allTabs = await getAllFromStorage("tabs");
+		let visits = 1;
+		if (urlStr) {
+			const currentUrlBase = urlStr.split("?")[0];
+			visits = allTabs.filter(
+				(t) => t.url && t.url.split("?")[0] === currentUrlBase,
+			).length;
+			if (visits === 0) visits = 1;
+		}
+
+		// 4. Calculate Productivity Score
+		const prodMetrics =
+			await sessionLogger.calculateProductivityMetrics(stringTabId);
+
+		// Add the live time offset to the productivity calculation so the green bar grows in real-time
+		const totalLiveDwell = savedDwellTimeMs + liveOffsetMs;
+		const timeScore =
+			Math.min(totalLiveDwell / (30 * 60 * 1000), 1.0) * 0.2;
+
+		let productivity = (prodMetrics.productivityScore || 0) + timeScore;
+
+		// Ensure the bar is always at least 5% visible so the user knows it exists
+		if (productivity < 0.05) productivity = 0.05;
+
+		return {
+			timeSpent: timeSpent,
+			origin: origin,
+			visits: visits,
+			productivity: productivity,
+		};
+	} catch (error) {
+		console.error("Failed to calculate salience:", error);
+		return {
+			timeSpent: 0,
+			origin: "Direct",
+			visits: 1,
+			productivity: 0.05,
+		};
+	}
 }
 
 // TODO: Persisting with filesys for add-in integration
