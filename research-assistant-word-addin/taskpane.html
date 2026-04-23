@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>Research Assistant</title>
+
+		<!-- ✅ Office.js must come first -->
+		<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+
+		<!-- ✅ Your bundled JS and CSS -->
+		<link rel="stylesheet" href="taskpane.css" />
+		<script defer src="taskpane.js"></script>
+
+		<style>
+			:root {
+				--primary: #3b82f6;
+				--secondary: #6b7280;
+				--background: #f9fafb;
+				--surface: #ffffff;
+				--text: #111827;
+				--border: #e5e7eb;
+			}
+
+			body {
+				margin: 0;
+				font-family: "Segoe UI", Roboto, sans-serif;
+				background: var(--background);
+				color: var(--text);
+			}
+
+			header {
+				background: var(--surface);
+				padding: 0.75rem 1rem;
+				border-bottom: 1px solid var(--border);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+
+			.logo {
+				font-weight: 600;
+				color: var(--primary);
+				font-size: 1.1rem;
+			}
+
+			#note-count {
+				font-size: 0.9rem;
+				color: var(--secondary);
+			}
+
+			main {
+				padding: 1rem;
+			}
+
+			.search-container {
+				margin-bottom: 1rem;
+			}
+
+			#search-input {
+				width: 100%;
+				padding: 0.5rem 0.75rem;
+				border: 1px solid var(--border);
+				border-radius: 6px;
+				outline: none;
+			}
+
+			.filters {
+				display: flex;
+				gap: 0.5rem;
+				margin-bottom: 1rem;
+			}
+
+			.filter-tab {
+				padding: 0.4rem 0.8rem;
+				border-radius: 6px;
+				border: 1px solid var(--border);
+				background: var(--surface);
+				cursor: pointer;
+				transition: 0.2s;
+				font-size: 0.9rem;
+				color: var(--secondary);
+			}
+
+			.filter-tab.active {
+				background: var(--primary);
+				color: white;
+				border-color: var(--primary);
+			}
+
+			#notes-list {
+				display: flex;
+				flex-direction: column;
+				gap: 0.75rem;
+			}
+
+			.note-item {
+				background: var(--surface);
+				padding: 0.75rem;
+				border-radius: 8px;
+				border: 1px solid var(--border);
+				cursor: pointer;
+				transition: 0.2s;
+			}
+
+			.note-item:hover {
+				border-color: var(--primary);
+				box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+			}
+
+			.note-item-title {
+				font-weight: 600;
+				margin-bottom: 0.25rem;
+			}
+
+			.note-item-content {
+				font-size: 0.9rem;
+				color: var(--secondary);
+				margin-bottom: 0.5rem;
+			}
+
+			.note-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.3rem;
+			}
+
+			.note-tag {
+				font-size: 0.75rem;
+				color: var(--primary);
+				background: rgba(59, 130, 246, 0.1);
+				padding: 0.15rem 0.4rem;
+				border-radius: 4px;
+			}
+
+			/* Modal styles */
+			#note-modal {
+				position: fixed;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.4);
+				display: none;
+				align-items: center;
+				justify-content: center;
+				z-index: 100;
+			}
+
+			.modal-content {
+				background: var(--surface);
+				padding: 1rem;
+				border-radius: 10px;
+				width: 90%;
+				max-width: 500px;
+				box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+			}
+
+			.modal-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 0.5rem;
+			}
+
+			.modal-header h2 {
+				font-size: 1.1rem;
+				margin: 0;
+			}
+
+			.modal-actions {
+				display: flex;
+				gap: 0.5rem;
+				margin-top: 1rem;
+			}
+
+			.modal-btn {
+				flex: 1;
+				padding: 0.5rem;
+				border: none;
+				border-radius: 6px;
+				cursor: pointer;
+				font-weight: 500;
+				font-size: 0.9rem;
+			}
+
+			#copy-btn {
+				background: var(--secondary);
+				color: white;
+			}
+
+			#insert-btn {
+				background: var(--primary);
+				color: white;
+			}
+
+			/* Toast */
+			#toast {
+				position: fixed;
+				bottom: 20px;
+				left: 50%;
+				transform: translateX(-50%);
+				padding: 0.75rem 1.25rem;
+				border-radius: 6px;
+				color: white;
+				font-size: 0.9rem;
+				display: none;
+				z-index: 200;
+			}
+
+			/* Loading Overlay */
+			#loading-overlay {
+				position: fixed;
+				inset: 0;
+				background: rgba(255, 255, 255, 0.6);
+				display: none;
+				align-items: center;
+				justify-content: center;
+				z-index: 150;
+				font-weight: 600;
+				color: var(--primary);
+			}
+		</style>
+	</head>
+
+	<body>
+		<header>
+			<div class="logo">Research Assistant</div>
+			<div id="note-count">0 notes</div>
+		</header>
+
+		<main>
+			<div class="search-container">
+				<input
+					type="text"
+					id="search-input"
+					placeholder="Search notes..."
+				/>
+			</div>
+
+			<div class="filters">
+				<div class="filter-tab active" data-filter="all">All</div>
+				<div class="filter-tab" data-filter="summary">Summaries</div>
+				<div class="filter-tab" data-filter="quote">Quotes</div>
+				<div class="filter-tab" data-filter="idea">Ideas</div>
+			</div>
+
+			<div id="notes-list"></div>
+
+			<div
+				id="empty-state"
+				style="
+					display: none;
+					text-align: center;
+					color: var(--secondary);
+					padding: 1rem;
+				"
+			>
+				No notes found.
+			</div>
+		</main>
+
+		<!-- Modal -->
+		<div id="note-modal">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 id="modal-title">Note Title</h2>
+					<button
+						id="modal-close"
+						style="
+							border: none;
+							background: none;
+							font-size: 1.2rem;
+						"
+					>
+						×
+					</button>
+				</div>
+				<textarea
+					id="modal-content"
+					readonly
+					style="
+						width: 100%;
+						height: 150px;
+						border: 1px solid var(--border);
+						border-radius: 6px;
+						padding: 0.5rem;
+					"
+				></textarea>
+				<div id="modal-tags" style="margin-top: 0.5rem"></div>
+				<div
+					id="modal-meta"
+					style="
+						font-size: 0.8rem;
+						color: var(--secondary);
+						margin-top: 0.5rem;
+					"
+				></div>
+				<div class="modal-actions">
+					<button id="copy-btn" class="modal-btn">Copy</button>
+					<button id="insert-btn" class="modal-btn">
+						Insert into Word
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Toast -->
+		<div id="toast"><span id="toast-message"></span></div>
+
+		<!-- Loading -->
+		<div id="loading-overlay">Loading...</div>
+	</body>
+</html>
